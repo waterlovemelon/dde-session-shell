@@ -65,7 +65,6 @@ private:
 
     void checkAuthResult(const int type, const int state) override;
 
-    void syncAuthType(const QVariant &value);
     void replaceWidget(AuthModule *authModule);
     void setBioAuthStateVisible(AuthModule *authModule, bool visible);
     void updateSpaceItem();
@@ -84,8 +83,6 @@ private:
     QSpacerItem *m_bioBottomSpacingHolder;
     QSpacerItem *m_authTypeBottomSpacingHolder;
     AuthCommon::AuthType m_currentAuthType;
-    static QList<SFAWidget*> SFAWidgetObjs;
-    bool m_inited;
 };
 
 #endif // SFAWIDGET_H

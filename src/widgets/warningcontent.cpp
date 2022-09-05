@@ -3,13 +3,18 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "warningcontent.h"
+#include "fullscreenbackground.h"
+#include "lockcontent.h"
 
-WarningContent::WarningContent(SessionBaseModel * const model, const SessionBaseModel::PowerAction action, QWidget *parent)
+Q_GLOBAL_STATIC(WarningContent, warningContent)
+
+WarningContent::WarningContent(QWidget *parent)
     : SessionBaseWindow(parent)
-    , m_model(model)
+    , m_model(nullptr)
     , m_login1Inter(new DBusLogin1Manager("org.freedesktop.login1", "/org/freedesktop/login1", QDBusConnection::systemBus(), this))
-    , m_powerAction(action)
+    , m_powerAction(SessionBaseModel::PowerAction::None)
 {
+    setAccessibleName("WarningContent");
     m_inhibitorBlacklists << "NetworkManager" << "ModemManager" << "com.deepin.daemon.Power";
     setTopFrameVisible(false);
     setBottomFrameVisible(false);
@@ -18,6 +23,17 @@ WarningContent::WarningContent(SessionBaseModel * const model, const SessionBase
 WarningContent::~WarningContent()
 {
 
+}
+
+WarningContent *WarningContent::instance()
+{
+    return warningContent;
+}
+
+void WarningContent::setModel(SessionBaseModel * const model)
+{
+    m_model = model;
+    connect(m_model, &SessionBaseModel::shutdownInhibit, this, &WarningContent::shutdownInhibit);
 }
 
 QList<InhibitWarnView::InhibitorData> WarningContent::listInhibitors(const SessionBaseModel::PowerAction action)
@@ -116,22 +132,23 @@ QList<InhibitWarnView::InhibitorData> WarningContent::listInhibitors(const Sessi
 
 void WarningContent::doCancelShutdownInhibit()
 {
-    if (m_model->isCheckedInhibit()) return;
-
-    m_model->setIsCheckedInhibit(true);
     m_model->setPowerAction(SessionBaseModel::PowerAction::None);
-    emit m_model->cancelShutdownInhibit(true);
+    FullScreenBackground::setContent(LockContent::instance());
+    // 从lock点的power btn，不能隐藏锁屏而进入桌面
+    if (!m_model->isPressedPowerBtnFromLock()) {
+        m_model->setVisible(false);
+    }
+    m_model->resetPowerBtnPressedFromLock();
+    m_model->setCurrentModeState(SessionBaseModel::PasswordMode);
 }
 
 void WarningContent::doAccecpShutdownInhibit()
 {
-    if (m_model->isCheckedInhibit()) return;
-
-    m_model->setIsCheckedInhibit(true);
     m_model->setPowerAction(m_powerAction);
     m_model->resetPowerBtnPressedFromLock();
-    if (m_model->currentModeState() != SessionBaseModel::ModeStatus::ShutDownMode)
-        emit m_model->cancelShutdownInhibit(false);
+    if (m_model->currentModeState() != SessionBaseModel::ModeStatus::ShutDownMode) {
+        FullScreenBackground::setContent(LockContent::instance());
+    }
 }
 
 void WarningContent::beforeInvokeAction(bool needConfirm)
@@ -140,6 +157,7 @@ void WarningContent::beforeInvokeAction(bool needConfirm)
     const QList<std::shared_ptr<User>> &loginUsers = m_model->loginedUserList();
 
     if (m_warningView != nullptr) {
+        qInfo() << "delete warning view: " << m_warningView;
         m_warningView->deleteLater();
         m_warningView = nullptr;
     }
@@ -289,4 +307,12 @@ void WarningContent::keyPressEvent(QKeyEvent *event)
         break;
     }
     QWidget::keyPressEvent(event);
+}
+
+void WarningContent::shutdownInhibit(const SessionBaseModel::PowerAction action, bool needConfirm)
+{
+    setPowerAction(action);
+    //检查是否允许关机
+    beforeInvokeAction(needConfirm);
+    FullScreenBackground::setContent(WarningContent::instance());
 }

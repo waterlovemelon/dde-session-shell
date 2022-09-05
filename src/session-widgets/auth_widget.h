@@ -6,6 +6,7 @@
 #define AUTHWIDGET_H
 
 #include "userinfo.h"
+#include "authcommon.h"
 
 #include <DArrowRectangle>
 #include <DBlurEffectWidget>
@@ -23,7 +24,6 @@ class AuthFingerprint;
 class AuthPassword;
 class AuthCustom;
 class DLineEditEx;
-class FrameDataBind;
 class KbLayoutWidget;
 class KeyboardMonitor;
 class SessionBaseModel;
@@ -91,7 +91,6 @@ protected Q_SLOTS:
 
 protected:
     const SessionBaseModel *m_model;
-    FrameDataBind *m_frameDataBind;
 
     DBlurEffectWidget *m_blurEffectWidget; // 模糊背景
     DFloatingButton *m_lockButton;         // 解锁按钮
@@ -121,6 +120,7 @@ protected:
 
     QList<QMetaObject::Connection> m_connectionList;
     QMap<QString, int> m_registerFunctions;
+    AuthCommon::AuthState m_authState;  // 当前验证状态
 };
 
 #endif // AUTHWIDGET_H

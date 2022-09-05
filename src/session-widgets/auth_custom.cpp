@@ -164,7 +164,7 @@ void AuthCustom::authCallBack(const AuthCallbackData *callbackData, void *app_da
 
 std::string AuthCustom::messageCallback(const std::string &message, void *app_data)
 {
-    qDebug() << Q_FUNC_INFO << "Recieved message: " << QString::fromStdString(message);
+    qDebug() << Q_FUNC_INFO << "Received message: " << QString::fromStdString(message);
     QJsonParseError jsonParseError;
     const QJsonDocument messageDoc = QJsonDocument::fromJson(QByteArray::fromStdString(message), &jsonParseError);
 
@@ -232,7 +232,6 @@ std::string AuthCustom::messageCallback(const std::string &message, void *app_da
  * @param app_data 从插件回传的AuthCustom对象指针
  * @return AuthCustom* AuthCustom对象指针
  */
-// TODO 考虑多屏使用一个不会释放的对象管理插件
 AuthCustom *AuthCustom::getAuthCustomObj(void *app_data)
 {
     AuthCustom *authCustom = static_cast<AuthCustom *>(app_data);

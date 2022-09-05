@@ -40,7 +40,7 @@ public:
 
     inline bool showAvatar() const { return m_showAvatar; };
     inline bool showUserName() const { return m_showUserName; }
-    inline bool showSwithButton() const { return m_showSwitchButton; }
+    inline bool showSwitchButton() const { return m_showSwitchButton; }
     inline bool showLockButton() const { return m_showLockButton; }
     inline AuthCommon::DefaultAuthLevel defaultAuthLevel() const { return m_defaultAuthLevel; }
     inline AuthCommon::AuthType authType() const { return m_authType; }
@@ -48,6 +48,8 @@ public:
     void lightdmAuthStarted();
 
     void notifyAuthState(AuthCommon::AuthType authType, AuthCommon::AuthState state);
+
+    using AuthModule::setLimitsInfo;
     void setLimitsInfo(const QString limitsInfoStr);
 
 protected:

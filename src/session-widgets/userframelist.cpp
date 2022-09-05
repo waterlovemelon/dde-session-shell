@@ -5,7 +5,6 @@
 #include "userframelist.h"
 
 #include "dflowlayout.h"
-#include "framedatabind.h"
 #include "sessionbasemodel.h"
 #include "user_widget.h"
 #include "userinfo.h"
@@ -21,7 +20,6 @@ const int UserFrameSpaceing = 40;
 UserFrameList::UserFrameList(QWidget *parent)
     : QWidget(parent)
     , m_scrollArea(new QScrollArea(this))
-    , m_frameDataBind(FrameDataBind::Instance())
 {
     setObjectName(QStringLiteral("UserFrameList"));
     setAccessibleName(QStringLiteral("UserFrameList"));
@@ -37,13 +35,6 @@ UserFrameList::UserFrameList(QWidget *parent)
     QScrollerProperties sp;
     sp.setScrollMetric(QScrollerProperties::VerticalOvershootPolicy, QScrollerProperties::OvershootWhenScrollable);
     scroller->setScrollerProperties(sp);
-
-    std::function<void(QVariant)> function = std::bind(&UserFrameList::onOtherPageChanged, this, std::placeholders::_1);
-    int index = m_frameDataBind->registerFunction("UserFrameList", function);
-
-    connect(this, &UserFrameList::destroyed, this, [this, index] {
-        m_frameDataBind->unRegisterFunction("UserFrameList", index);
-    });
 }
 
 void UserFrameList::initUI()
@@ -177,7 +168,6 @@ void UserFrameList::switchNextUser()
                 currentSelectedUser->setSelected(true);
                 //处理m_scrollArea翻页显示
                 m_scrollArea->verticalScrollBar()->setValue(0);
-                m_frameDataBind->updateValue("UserFrameList", currentSelectedUser->uid());
             } else {
                 //处理m_scrollArea翻页显示
                 int selectedRight = m_loginWidgets[i]->geometry().right();
@@ -194,7 +184,6 @@ void UserFrameList::switchNextUser()
 
                 currentSelectedUser = m_loginWidgets[i + 1];
                 currentSelectedUser->setSelected(true);
-                m_frameDataBind->updateValue("UserFrameList", currentSelectedUser->uid());
             }
             break;
         }
@@ -214,7 +203,6 @@ void UserFrameList::switchPreviousUser()
                 currentSelectedUser->setSelected(true);
                 //处理m_scrollArea翻页显示
                 m_scrollArea->verticalScrollBar()->setValue(m_scrollArea->verticalScrollBar()->maximum());
-                m_frameDataBind->updateValue("UserFrameList", currentSelectedUser->uid());
             } else {
                 //处理m_scrollArea翻页显示
                 QPoint topLeft = m_loginWidgets[i]->geometry().topLeft();
@@ -224,7 +212,6 @@ void UserFrameList::switchPreviousUser()
 
                 currentSelectedUser = m_loginWidgets[i - 1];
                 currentSelectedUser->setSelected(true);
-                m_frameDataBind->updateValue("UserFrameList", currentSelectedUser->uid());
             }
             break;
         }

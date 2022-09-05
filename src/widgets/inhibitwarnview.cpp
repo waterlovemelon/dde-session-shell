@@ -3,7 +3,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "inhibitwarnview.h"
-#include "framedatabind.h"
 
 #include <QHBoxLayout>
 #include <QPushButton>
@@ -83,9 +82,6 @@ InhibitWarnView::InhibitWarnView(SessionBaseModel::PowerAction inhibitType, QWid
 
     m_inhibitorListLayout = new QVBoxLayout;
 
-    std::function<void (QVariant)> buttonChanged = std::bind(&InhibitWarnView::onOtherPageDataChanged, this, std::placeholders::_1);
-    m_dataBindIndex = FrameDataBind::Instance()->registerFunction("InhibitWarnView", buttonChanged);
-
     m_confirmTextLabel->setText("The reason of inhibit.");
     m_confirmTextLabel->setAlignment(Qt::AlignCenter);
     m_confirmTextLabel->setStyleSheet("color:white;");
@@ -110,11 +106,33 @@ InhibitWarnView::InhibitWarnView(SessionBaseModel::PowerAction inhibitType, QWid
 
     connect(m_cancelBtn, &QPushButton::clicked, this, &InhibitWarnView::cancelled);
     connect(m_acceptBtn, &QPushButton::clicked, this, &InhibitWarnView::actionInvoked, Qt::QueuedConnection);
+
+    // QTimer *timer = new QTimer(this);
+    // timer->start(2000);
+    // connect(timer, &QTimer::timeout, this, [this] {
+    //     qInfo() << "Inhibit warning view has focus: " << hasFocus() << ", this: " << this;
+    //     if (!hasFocus()) {
+    //         qInfo() << "topLevelWidget(): " << topLevelWidget()->metaObject()->className() <<  ", top widget: " << topLevelWidget();
+    //         topLevelWidget()->raise();
+    //         topLevelWidget()->activateWindow();
+    //     }
+    // });
 }
 
 InhibitWarnView::~InhibitWarnView()
 {
-    FrameDataBind::Instance()->unRegisterFunction("InhibitWarnView", m_dataBindIndex);
+
+}
+
+bool InhibitWarnView::event(QEvent *event)
+{
+    if (event->type() == QEvent::FocusIn) {
+        qInfo() << "focus in";
+    }
+    if (event->type() == QEvent::FocusOut) {
+        qInfo() << "focus out";
+    }
+    return false;
 }
 
 void InhibitWarnView::setInhibitorList(const QList<InhibitorData> &list)
@@ -190,8 +208,6 @@ void InhibitWarnView::toggleButtonState()
         setCurrentButton(ButtonType::Accept);
     else
         setCurrentButton(ButtonType::Cancel);
-
-    FrameDataBind::Instance()->updateValue("InhibitWarnView", m_currentBtn->objectName());
 }
 
 void InhibitWarnView::buttonClickHandle()
@@ -216,14 +232,12 @@ bool InhibitWarnView::focusNextPrevChild(bool next)
     else
         setCurrentButton(ButtonType::Accept);
 
-    FrameDataBind::Instance()->updateValue("InhibitWarnView", m_currentBtn->objectName());
-
     return WarningView::focusNextPrevChild(next);
 }
 
-void InhibitWarnView::setCurrentButton(const ButtonType btntype)
+void InhibitWarnView::setCurrentButton(const ButtonType btnType)
 {
-    switch (btntype) {
+    switch (btnType) {
     case ButtonType::Cancel:
         m_acceptBtn->setChecked(false);
         m_cancelBtn->setChecked(true);
@@ -250,6 +264,7 @@ void InhibitWarnView::onOtherPageDataChanged(const QVariant &value)
 
 void InhibitWarnView::keyPressEvent(QKeyEvent *event)
 {
+    qInfo() << Q_FUNC_INFO << "event: " << event->key();
     switch (event->key()) {
     case Qt::Key_Up:
     case Qt::Key_Down:

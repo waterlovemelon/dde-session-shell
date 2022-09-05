@@ -51,7 +51,7 @@ private:
     void initUI();
     void initConnections();
 
-    void updateUnlockPrompt();
+    void updateUnlockPrompt() override;
     void showPasswordHint();
     void setPasswordHintBtnVisible(const bool isVisible);
     bool isUserAccountBinded();

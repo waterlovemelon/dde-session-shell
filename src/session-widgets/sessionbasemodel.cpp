@@ -90,7 +90,7 @@ void SessionBaseModel::setSessionKey(const QString &sessionKey)
 
 void SessionBaseModel::setPowerAction(const PowerAction &powerAction)
 {
-    qDebug("set power action: %d", powerAction);
+    qInfo() << "set power action: " << powerAction << ", current power action: " << m_powerAction;
 
     if (powerAction == m_powerAction)
         return;
@@ -102,7 +102,7 @@ void SessionBaseModel::setPowerAction(const PowerAction &powerAction)
 
 void SessionBaseModel::setCurrentModeState(const ModeStatus &currentModeState)
 {
-    qDebug("set current mode state: %d", currentModeState);
+    qInfo() << "set current mode state: " << currentModeState << ", current mode: " << m_currentModeState;
 
     if (m_currentModeState == currentModeState)
         return;
@@ -218,14 +218,6 @@ void SessionBaseModel::setIsHibernateModel(bool is_Hibernate)
 
     m_isHibernateMode = is_Hibernate;
     emit HibernateModeChanged(is_Hibernate);
-}
-
-void SessionBaseModel::setIsCheckedInhibit(bool checked)
-{
-    if (m_isCheckedInhibit == checked)
-        return;
-
-    m_isCheckedInhibit = checked;
 }
 
 /**
