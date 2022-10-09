@@ -144,9 +144,6 @@ public:
 
     std::shared_ptr<User> json2User(const QString &userJson);
 
-    void setCurrentPowerBtnIndex(const int index);
-    inline int currentPowerBtnIndex() const { return m_currentPowerBntIndex;}
-
 signals:
     /* com.deepin.daemon.Accounts */
     void currentUserChanged(const std::shared_ptr<User>);
@@ -158,7 +155,6 @@ signals:
     void MFAFlagChanged(const bool);
     /* others */
     void visibleChanged(const bool);
-    void powerBtnIndexChanged(int index);
 
 public slots:
     /* com.deepin.daemon.Accounts */
@@ -237,7 +233,6 @@ private:
     bool m_isUseWayland;
     bool m_pressedPowerBtnFromLock; // 从lock界面点的power按键
     int m_userListSize = 0;
-    int m_currentPowerBntIndex = -1;
     AppType m_appType;
     QList<std::shared_ptr<User>> m_userList;
     std::shared_ptr<User> m_currentUser;
