@@ -38,6 +38,7 @@ target_include_directories(${BIN_NAME} PUBLIC
     ${PROJECT_BINARY_DIR}
     ${PROJECT_SOURCE_DIR}/src/dde-lock
     ${PROJECT_SOURCE_DIR}/src/dde-lock/dbus
+    ${Qt5WaylandClient_PRIVATE_INCLUDE_DIRS}
 )
 
 target_link_libraries(${BIN_NAME} PRIVATE
@@ -59,4 +60,5 @@ target_link_libraries(${BIN_NAME} PRIVATE
     -lpthread
     -lm
     -lcrypto
+    ${WaylandClient_LIBRARIES}
 )

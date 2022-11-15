@@ -44,6 +44,7 @@ target_include_directories(${BIN_NAME} PUBLIC
     ${Qt5X11Extras_INCLUDE_DIRS}
     ${Greeter_INCLUDE_DIRS}
     ${PROJECT_SOURCE_DIR}/src/lightdm-deepin-greeter
+    ${Qt5WaylandClient_PRIVATE_INCLUDE_DIRS}
 )
 
 target_compile_definitions(lightdm-deepin-greeter
@@ -70,4 +71,5 @@ target_link_libraries(${BIN_NAME} PRIVATE
     -lpthread
     -lm
     -lcrypto
+    ${WaylandClient_LIBRARIES}
 )
