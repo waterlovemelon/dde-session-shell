@@ -35,6 +35,7 @@ private:
     void onScreenRemoved(QPointer<QScreen> screen);
     void raiseContentFrame();
     int getDisplayModeByConfig(const QString &config) const;
+    void removeLater();
 
 private slots:
     void onDisplayModeChanged(const QString &);
@@ -43,9 +44,11 @@ private slots:
 private:
     std::function<QWidget* (QPointer<QScreen> , int)> m_registerFunction;
     QMap<QScreen*, QWidget*> m_frames;
+    QList<QWidget*> m_tmpFrames;
     QTimer *m_raiseContentFrameTimer;
     SystemDisplayInter *m_systemDisplay;
     bool m_isCopyMode;
+    QTimer *m_removeFrameTimer;
 };
 
 #endif // MULTISCREENMANAGER_H

@@ -148,7 +148,7 @@ void FullscreenBackground::setEnterEnable(bool enable)
     m_enableEnterEvent = enable;
 }
 
-void FullscreenBackground::setScreen(QPointer<QScreen> screen, bool isVisible)
+void FullscreenBackground::setScreen(QPointer<QScreen> screen, bool showContent, bool updateFrameVisible)
 {
     if (screen.isNull())
         return;
@@ -157,7 +157,7 @@ void FullscreenBackground::setScreen(QPointer<QScreen> screen, bool isVisible)
             << " screen info: " << screen
             << " screen geometry: " << screen->geometry()
             << " lock frame object:" << this;
-    if (isVisible) {
+    if (showContent) {
         m_content->show();
         emit contentVisibleChanged(true);
     } else {
@@ -166,6 +166,9 @@ void FullscreenBackground::setScreen(QPointer<QScreen> screen, bool isVisible)
             setMouseTracking(true);
         });
     }
+
+    if (updateFrameVisible)
+        setVisible(m_model->visible());
 
     updateScreen(screen);
 }
@@ -299,20 +302,24 @@ void FullscreenBackground::leaveEvent(QEvent *event)
 
 void FullscreenBackground::resizeEvent(QResizeEvent *event)
 {
-    m_blackWidget->resize(size());
-    m_content->resize(size());
-    if (isPicture(backgroundPath) && !contains(PIXMAP_TYPE_BACKGROUND)) {
-        QPixmap pixmap;
-        loadPixmap(backgroundPath, pixmap);
-        addPixmap(pixmapHandle(pixmap), PIXMAP_TYPE_BACKGROUND);
-    }
-    if (isPicture(blurBackgroundPath) && !contains(PIXMAP_TYPE_BLUR_BACKGROUND)) {
-        QPixmap pixmap;
-        loadPixmap(blurBackgroundPath, pixmap);
-        addPixmap(pixmapHandle(QPixmap(blurBackgroundPath)), PIXMAP_TYPE_BLUR_BACKGROUND);
-    }
+    qInfo() << Q_FUNC_INFO;
+    QTimer::singleShot(0, this, [this] {
+        m_blackWidget->resize(size());
+        m_content->resize(size());
+        if (isPicture(backgroundPath) && !contains(PIXMAP_TYPE_BACKGROUND)) {
+            QPixmap pixmap;
+            loadPixmap(backgroundPath, pixmap);
+            addPixmap(pixmapHandle(pixmap), PIXMAP_TYPE_BACKGROUND);
+        }
+        if (isPicture(blurBackgroundPath) && !contains(PIXMAP_TYPE_BLUR_BACKGROUND)) {
+            QPixmap pixmap;
+            loadPixmap(blurBackgroundPath, pixmap);
+            addPixmap(pixmapHandle(QPixmap(blurBackgroundPath)), PIXMAP_TYPE_BLUR_BACKGROUND);
+        }
 
-    updatePixmap();
+        updatePixmap();
+    });
+
     QWidget::resizeEvent(event);
 }
 
@@ -474,6 +481,7 @@ QSize FullscreenBackground::trueSize() const
 void FullscreenBackground::addPixmap(const QPixmap &pixmap, const int type)
 {
     const QSize &size = trueSize();
+    qInfo() << "Add pixmap, size: " << size;
     auto addFunc = [ this, &pixmap, size ] (QList<QPair<QSize, QPixmap>> &list){
         bool exist = false;
         for (auto &pair : list) {

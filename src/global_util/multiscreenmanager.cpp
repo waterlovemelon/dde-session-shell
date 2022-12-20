@@ -18,6 +18,7 @@ MultiScreenManager::MultiScreenManager(QObject *parent)
     , m_raiseContentFrameTimer(new QTimer(this))
     , m_systemDisplay(new SystemDisplayInter("com.deepin.system.Display", "/com/deepin/system/Display", QDBusConnection::systemBus(), this))
     , m_isCopyMode(false)
+    , m_removeFrameTimer(nullptr)
 {
     connect(qApp, &QGuiApplication::screenAdded, this, &MultiScreenManager::onScreenAdded, Qt::DirectConnection);
     connect(qApp, &QGuiApplication::screenRemoved, this, &MultiScreenManager::onScreenRemoved, Qt::DirectConnection);
@@ -31,6 +32,11 @@ MultiScreenManager::MultiScreenManager(QObject *parent)
     if (m_systemDisplay->isValid()) {
         m_isCopyMode = (COPY_MODE == getDisplayModeByConfig(m_systemDisplay->GetConfig()));
     }
+
+    m_removeFrameTimer = new QTimer(this);
+    m_removeFrameTimer->setInterval(60*1000);
+    m_removeFrameTimer->setSingleShot(true);
+    connect(m_removeFrameTimer, &QTimer::timeout, this, &MultiScreenManager::removeLater);
 }
 
 void MultiScreenManager::register_for_mutil_screen(std::function<QWidget *(QScreen *, int)> function)
@@ -100,7 +106,19 @@ void MultiScreenManager::onScreenAdded(QPointer<QScreen> screen)
             w = m_registerFunction(screen, m_frames.size());
         }
     } else {
-        w = m_registerFunction(screen, m_frames.size());
+        if (m_tmpFrames.isEmpty()) {
+            w = m_registerFunction(screen, m_frames.size());
+        } else {
+            qInfo() << "Tmp frame is not empty";
+            FullscreenBackground* frame = qobject_cast<FullscreenBackground*>(m_tmpFrames.first());
+            m_tmpFrames.removeFirst();
+            if (frame) {
+                frame->setScreen(screen, false, true);
+                w = frame;
+            } else {
+                w = m_registerFunction(screen, m_frames.size());
+            }
+        }
     }
 
     // 创建全屏窗口的时间较长，可能在此期间屏幕已经被移除了且指针被析构了（手动操作比较难出现，如果显卡或驱动有问题则会出现），
@@ -157,9 +175,11 @@ void MultiScreenManager::onScreenRemoved(QPointer<QScreen> screen)
             } else {
                 frame->deleteLater();
             }
-        }else {
-            m_frames[screen]->deleteLater();
+        } else {
+            m_tmpFrames.append(m_frames[screen]);
+            m_frames[screen]->hide();
             m_frames.remove(screen);
+            m_removeFrameTimer->start();
         }
     }
 
@@ -227,4 +247,11 @@ int MultiScreenManager::getDisplayModeByConfig(const QString &config) const
     }
 
     return EXTENDED_MODE;
+}
+
+void MultiScreenManager::removeLater()
+{
+    qInfo() << Q_FUNC_INFO;
+    qDeleteAll(m_tmpFrames);
+    m_tmpFrames.clear();
 }
