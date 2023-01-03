@@ -18,7 +18,7 @@
 #include <QScroller>
 #include <QVBoxLayout>
 
-const int UserFrameSpaceing = 40;
+const int UserFrameSpacing = 40;
 
 using namespace DDESESSIONCC;
 
@@ -50,6 +50,7 @@ UserFrameList::UserFrameList(QWidget *parent)
     });
 
     DConfigHelper::instance()->bind(this, SHOW_USER_NAME);
+    DConfigHelper::instance()->bind(this, USER_FRAME_MAX_WIDTH);
 }
 
 void UserFrameList::initUI()
@@ -188,7 +189,7 @@ void UserFrameList::switchNextUser()
                 //处理m_scrollArea翻页显示
                 int selectedRight = m_loginWidgets[i]->geometry().right();
                 int scrollRight = m_scrollArea->widget()->geometry().right();
-                if (selectedRight + UserFrameSpaceing == scrollRight) {
+                if (selectedRight + UserFrameSpacing == scrollRight) {
                     QPoint topLeft;
                     if (m_rowCount == 1) {
                         topLeft = m_loginWidgets[i + 1]->geometry().topLeft();
@@ -252,17 +253,28 @@ void UserFrameList::updateLayout(int width)
     if (userWidget)
         userWidgetHeight = userWidget->heightHint();
 
-    // 根据界面总宽度计算每行可以显示多少用户信息，每行最多5个用户信息
-    int count = 5;
-    while ((UserFrameWidth + UserFrameSpaceing) * count > width - 10) {
-        count--;
+    int resolutionWidth = 0;
+    QWidget* parentWidget = qobject_cast<QWidget*>(this->parent());
+    if (parentWidget)
+        resolutionWidth = parentWidget->width();
+
+    // 根据界面总宽度计算第一行可以显示多少用户信息
+    int countWidth = 0;
+    int count = 0;
+    for (auto w : m_loginWidgets) {
+        countWidth += w->width() + UserFrameSpacing;
+        count += 1;
+        if (count > 5 || countWidth > resolutionWidth - 200 * 2) {
+            countWidth -= w->width() + UserFrameSpacing;
+            count -= 1;
+            break;
+        }
     }
-    count = count <= 0 ? 1 : count;
 
     if (m_flowLayout->count() <= count) {
-        m_scrollArea->setFixedSize((UserFrameWidth + UserFrameSpaceing) * m_flowLayout->count(), userWidgetHeight + 20);
+        m_scrollArea->setFixedSize(countWidth, userWidgetHeight + 20);
     } else {
-        m_scrollArea->setFixedSize((UserFrameWidth + UserFrameSpaceing) * count, (userWidgetHeight + UserFrameSpaceing) * 2);
+        m_scrollArea->setFixedSize(countWidth, (userWidgetHeight + UserFrameSpacing) * 2);
     }
 
     m_centerWidget->setFixedWidth(m_scrollArea->width() - 10);
@@ -337,7 +349,7 @@ void UserFrameList::resizeEvent(QResizeEvent *event)
 
 void UserFrameList::OnDConfigPropertyChanged(const QString &key, const QVariant &value)
 {
-    if (key == SHOW_USER_NAME) {
+    if (key == SHOW_USER_NAME || key == USER_FRAME_MAX_WIDTH) {
         // 需要等待UserWidget处理完，延时100ms后更新布局
         QTimer::singleShot(100, this, [ = ]{
             updateLayout(width());
