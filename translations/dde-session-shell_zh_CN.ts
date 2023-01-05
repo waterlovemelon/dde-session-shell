@@ -1,4 +1,6 @@
-<?xml version="1.0" ?><!DOCTYPE TS><TS version="2.1" language="zh_CN">
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE TS>
+<TS version="2.1" language="zh_CN">
 <context>
     <name>AuthFace</name>
     <message>
@@ -11,7 +13,9 @@
     </message>
     <message numerus="yes">
         <source>Verification failed, %n chances left</source>
-        <translation><numerusform>验证失败，您还可以尝试%n次</numerusform></translation>
+        <translation>
+            <numerusform>验证失败，您还可以尝试%n次</numerusform>
+        </translation>
     </message>
     <message>
         <source>Verification failed, only one chance left</source>
@@ -42,7 +46,9 @@
     </message>
     <message numerus="yes">
         <source>Verification failed, %n chances left</source>
-        <translation><numerusform>验证失败，您还可以尝试%n次</numerusform></translation>
+        <translation>
+            <numerusform>验证失败，您还可以尝试%n次</numerusform>
+        </translation>
     </message>
     <message>
         <source>Verification failed, only one chance left</source>
@@ -65,7 +71,9 @@
     </message>
     <message numerus="yes">
         <source>Verification failed, %n chances left</source>
-        <translation><numerusform>验证失败，您还可以尝试%n次</numerusform></translation>
+        <translation>
+            <numerusform>验证失败，您还可以尝试%n次</numerusform>
+        </translation>
     </message>
     <message>
         <source>Verification failed, only one chance left</source>
@@ -88,7 +96,9 @@
     </message>
     <message numerus="yes">
         <source>Verification failed, %n chances left</source>
-        <translation><numerusform>验证失败，您还可以尝试%n次</numerusform></translation>
+        <translation>
+            <numerusform>验证失败，您还可以尝试%n次</numerusform>
+        </translation>
     </message>
     <message>
         <source>Verification failed, only one chance left</source>
@@ -108,7 +118,9 @@
     </message>
     <message numerus="yes">
         <source>Please try again %n minutes later</source>
-        <translation><numerusform>请%n分钟后再试</numerusform></translation>
+        <translation>
+            <numerusform>请%n分钟后再试</numerusform>
+        </translation>
     </message>
     <message>
         <source>Reset Password</source>
@@ -127,7 +139,9 @@
     </message>
     <message numerus="yes">
         <source>Please try again %n minutes later</source>
-        <translation><numerusform>请%n分钟后再试</numerusform></translation>
+        <translation>
+            <numerusform>请%n分钟后再试</numerusform>
+        </translation>
     </message>
     <message>
         <source>Reset Password</source>
@@ -146,7 +160,9 @@
     </message>
     <message numerus="yes">
         <source>Verification failed, %n chances left</source>
-        <translation><numerusform>验证失败，您还可以尝试%n次</numerusform></translation>
+        <translation>
+            <numerusform>验证失败，您还可以尝试%n次</numerusform>
+        </translation>
     </message>
     <message>
         <source>Verification failed, only one chance left</source>
@@ -166,7 +182,9 @@
     </message>
     <message numerus="yes">
         <source>Please try again %n minute(s) later</source>
-        <translation><numerusform>请%n分钟后再试</numerusform></translation>
+        <translation>
+            <numerusform>请%n分钟后再试</numerusform>
+        </translation>
     </message>
     <message>
         <source>Please try again 1 minute later</source>
@@ -174,7 +192,9 @@
     </message>
     <message numerus="yes">
         <source>Please try again %n minutes later</source>
-        <translation><numerusform>请%n分钟后再试</numerusform></translation>
+        <translation>
+            <numerusform>请%n分钟后再试</numerusform>
+        </translation>
     </message>
 </context>
 <context>
@@ -185,7 +205,9 @@
     </message>
     <message numerus="yes">
         <source>Your password will expire in %n days, please change it timely</source>
-        <translation><numerusform>密码将于%n天后过期，请及时修改密码</numerusform></translation>
+        <translation>
+            <numerusform>密码将于%n天后过期，请及时修改密码</numerusform>
+        </translation>
     </message>
     <message>
         <source>Password expired, please change</source>
@@ -294,6 +316,123 @@
     <message>
         <source>Start system monitor</source>
         <translation>启动系统监视器</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateChooseTip</name>
+    <message>
+        <source>Update and Reboot</source>
+        <translation>更新并重启</translation>
+    </message>
+    <message>
+        <source>Reboot</source>
+        <translation>重启</translation>
+    </message>
+    <message>
+        <source>Shutdown</source>
+        <translation>关机</translation>
+    </message>
+    <message>
+        <source>Update and Shutdown</source>
+        <translation>更新并关机</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateCtrl</name>
+    <message>
+        <source>Network error, please check your network and retry</source>
+        <translation>网络异常，请检查您的网络连接后重试</translation>
+    </message>
+    <message>
+        <source>The battery level is lower than 60%, please charge it and retry.</source>
+        <translation>电池电量低于60%，请接通电脑电源后重试</translation>
+    </message>
+    <message>
+        <source>Preparing update...</source>
+        <translation>正在准备更新...</translation>
+    </message>
+    <message>
+        <source>The free space on the system disk is less than %1G, please free up space on your system disk and retry</source>
+        <translation>系统盘剩余空间不足%1G，请清理系统盘</translation>
+    </message>
+    <message>
+        <source>Working on updates. Don&apos;t turn off your PC</source>
+        <translation>正在安装更新，请不要关闭电脑</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateFailedWidget</name>
+    <message>
+        <source>Update failed</source>
+        <translation>更新失败</translation>
+    </message>
+    <message>
+        <source>View update logs</source>
+        <translation>查看更新日志</translation>
+    </message>
+</context>
+<context>
+    <name>UpdatePrepareWidget</name>
+    <message>
+        <source>OK</source>
+        <translation>确定</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateProgressWidget</name>
+    <message numerus="yes">
+        <source>%1% complete</source>
+        <translation>
+            <numerusform>已完成%n%</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Battery low, please charge now</source>
+        <translation>电池电量低，请尽快接通电脑电源</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateResultWidget</name>
+    <message>
+        <source>Exit updates</source>
+        <translation>退出更新</translation>
+    </message>
+    <message>
+        <source>Reboot</source>
+        <translation>重启</translation>
+    </message>
+    <message>
+        <source>Shutdown</source>
+        <translation>关机</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateShowLogWidget</name>
+    <message>
+        <source>Update logs</source>
+        <translation>更新日志</translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation>关闭</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateSuccessWidget</name>
+    <message>
+        <source>Finished updating, your PC will restart now</source>
+        <translation>更新已完成，系统即将重启</translation>
+    </message>
+    <message>
+        <source>Finished updating, your PC will shutdown now</source>
+        <translation>更新已完成，系统即将关机</translation>
+    </message>
+</context>
+<context>
+    <name>UpdateWidget</name>
+    <message>
+        <source>Failed to connect to the update service, please check and retry</source>
+        <translation>无法启动更新服务，请检查后重试</translation>
     </message>
 </context>
 <context>

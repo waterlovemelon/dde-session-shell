@@ -40,6 +40,13 @@ void DBusShutdownAgent::Shutdown()
     }
 }
 
+void DBusShutdownAgent::UpdateAndShutdown()
+{
+    m_model->setUpdatePowerMode(SessionBaseModel::UPM_UpdateAndShutdown);
+    m_model->setCurrentModeState(SessionBaseModel::ModeStatus::ShutDownMode);
+    m_model->setVisible(true);
+}
+
 void DBusShutdownAgent::Restart()
 {
     qInfo() << "Restart";
@@ -51,6 +58,13 @@ void DBusShutdownAgent::Restart()
         m_model->setVisible(true);
         emit m_model->onRequirePowerAction(SessionBaseModel::PowerAction::RequireRestart, true);
     }
+}
+
+void DBusShutdownAgent::UpdateAndReboot()
+{
+    m_model->setUpdatePowerMode(SessionBaseModel::UPM_UpdateAndReboot);
+    m_model->setCurrentModeState(SessionBaseModel::ModeStatus::ShutDownMode);
+    m_model->setVisible(true);
 }
 
 void DBusShutdownAgent::Logout()

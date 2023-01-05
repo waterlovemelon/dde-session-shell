@@ -16,6 +16,8 @@
 #include "fullscreenbackground.h"
 #include "plugin_manager.h"
 
+#include "updatectrl.h"
+
 #include <DDBusSender>
 
 #include <QLocalSocket>
@@ -362,6 +364,12 @@ void LockContent::onStatusChanged(SessionBaseModel::ModeStatus status)
 
 void LockContent::mouseReleaseEvent(QMouseEvent *event)
 {
+    // 系统更新中，禁用鼠标点击效果
+    qInfo()<<"update: isUpdating "<<UpdateCtrl::instance()->isUpdating()<<__FUNCTION__;
+    if (UpdateCtrl::instance()->isUpdating()){
+        return SessionBaseWindow::mouseReleaseEvent(event);
+    }
+
     // 如果是设置密码界面，不做处理
     if (m_model->currentModeState() == SessionBaseModel::ResetPasswdMode)
         return SessionBaseWindow::mouseReleaseEvent(event);

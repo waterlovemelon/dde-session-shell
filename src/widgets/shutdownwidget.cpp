@@ -6,6 +6,8 @@
 #include "multiuserswarningview.h"
 #include "../global_util/gsettingwatcher.h"
 #include "../global_util/public_func.h"
+#include "updatectrl.h"
+#include "updatemodel.h"
 
 #include <DConfig>
 
@@ -23,9 +25,28 @@ ShutdownWidget::ShutdownWidget(QWidget *parent)
     , m_index(-1)
     , m_status(SessionBaseModel::NoStatus)
     , m_model(nullptr)
+    , m_frameDataBind(nullptr)
+    , m_shutdownFrame(nullptr)
     , m_systemMonitor(nullptr)
+    , m_actionFrame(nullptr)
+    , m_mainLayout(nullptr)
+    , m_shutdownLayout(nullptr)
+    , m_actionLayout(nullptr)
+    , m_currentSelectedBtn(nullptr)
+    , m_requireShutdownButton(nullptr)
+    , m_requireRestartButton(nullptr)
+    , m_requireSuspendButton(nullptr)
+    , m_requireHibernateButton(nullptr)
+    , m_requireLockButton(nullptr)
+    , m_requireLogoutButton(nullptr)
+    , m_requireSwitchUserBtn(nullptr)
+    , m_requireSwitchSystemBtn(nullptr)
+    , m_updateAndShutdownButton(nullptr)
+    , m_updateAndRebootButton(nullptr)
     , m_switchosInterface(new HuaWeiSwitchOSInterface("com.huawei", "/com/huawei/switchos", QDBusConnection::sessionBus(), this))
     , m_dconfig(DConfig::create(getDefaultConfigFileName(), getDefaultConfigFileName(), QString(), this))
+    , m_chooseUpdate(nullptr)
+    , m_updateWidget(nullptr)
 {
     m_frameDataBind = FrameDataBind::Instance();
 
@@ -49,6 +70,12 @@ ShutdownWidget::~ShutdownWidget()
 void ShutdownWidget::initConnect()
 {
     connect(m_model, &SessionBaseModel::powerBtnIndexChanged, this, &ShutdownWidget::onPowerBtnIndexChanged);
+    connect(UpdateCtrl::instance(),&UpdateCtrl::sigRequirePowerAction,this, [=] (bool isReboot) {
+        qInfo() << "Require power action: " << isReboot;
+        // 更新完后 重启/关机
+        onRequirePowerAction(isReboot ? SessionBaseModel::RequireRestart : SessionBaseModel::RequireShutdown, false);
+    });
+
     connect(m_requireRestartButton, &RoundItemButton::clicked, this, [ = ] {
         m_currentSelectedBtn = m_requireRestartButton;
         onRequirePowerAction(SessionBaseModel::PowerAction::RequireRestart, false);
@@ -82,6 +109,12 @@ void ShutdownWidget::initConnect()
     connect(m_requireLogoutButton, &RoundItemButton::clicked, this, [ = ] {
         m_currentSelectedBtn = m_requireLogoutButton;
         onRequirePowerAction(SessionBaseModel::PowerAction::RequireLogout, false);
+    });
+    connect(m_updateAndRebootButton, &RoundItemButton::clicked, this, [this] {
+        doUpdate(true);
+    });
+    connect(m_updateAndShutdownButton, &RoundItemButton::clicked, this, [this] {
+        doUpdate(false);
     });
 
     connect(GSettingWatcher::instance(), &GSettingWatcher::enableChanged, this, &ShutdownWidget::onEnable);
@@ -184,6 +217,9 @@ void ShutdownWidget::enableSleepBtn(bool enable)
 
 void ShutdownWidget::initUI()
 {
+    m_chooseUpdate =new UpdateChooseTip(this);
+    m_chooseUpdate->setVisible(false);
+
     setFocusPolicy(Qt::StrongFocus);
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
@@ -251,8 +287,25 @@ void ShutdownWidget::initUI()
         updateTr(m_requireSwitchSystemBtn, "Switch system");
     }
 
+    m_updateAndShutdownButton = new RoundItemButton(tr("Update and shutdown"));     // TODO 翻译
+    m_updateAndShutdownButton->setFocusPolicy(Qt::NoFocus);
+    m_updateAndShutdownButton->setAccessibleName("UpdateAndShutdownButton");
+    m_updateAndShutdownButton->setObjectName("UpdateAndShutdownButton");
+    m_updateAndShutdownButton->setAutoExclusive(true);
+    m_updateAndShutdownButton->setVisible(false);
+    GSettingWatcher::instance()->bind("systemShutdown", m_updateAndShutdownButton);  // GSettings配置项
+
+    m_updateAndRebootButton = new RoundItemButton(tr("Update and reboot"));         // TODO 翻译
+    m_updateAndRebootButton->setFocusPolicy(Qt::NoFocus);
+    m_updateAndRebootButton->setAccessibleName("UpdateAndRebootButton");
+    m_updateAndRebootButton->setObjectName("UpdateAndRebootButton");
+    m_updateAndRebootButton->setAutoExclusive(true);
+    m_updateAndRebootButton->setVisible(false);
+
     m_btnList.append(m_requireShutdownButton);
+    m_btnList.append(m_updateAndShutdownButton);
     m_btnList.append(m_requireRestartButton);
+    m_btnList.append(m_updateAndRebootButton);
     m_btnList.append(m_requireSuspendButton);
     m_btnList.append(m_requireHibernateButton);
     m_btnList.append(m_requireLockButton);
@@ -267,7 +320,9 @@ void ShutdownWidget::initUI()
     m_shutdownLayout->setSpacing(10);
     m_shutdownLayout->addStretch();
     m_shutdownLayout->addWidget(m_requireShutdownButton);
+    m_shutdownLayout->addWidget(m_updateAndShutdownButton);
     m_shutdownLayout->addWidget(m_requireRestartButton);
+    m_shutdownLayout->addWidget(m_updateAndRebootButton);
     m_shutdownLayout->addWidget(m_requireSuspendButton);
     m_shutdownLayout->addWidget(m_requireHibernateButton);
     m_shutdownLayout->addWidget(m_requireLockButton);
@@ -314,7 +369,11 @@ void ShutdownWidget::initUI()
     m_mainLayout->addWidget(m_actionFrame);
     setLayout(m_mainLayout);
 
-    updateStyle(":/skin/requireshutdown.qss", this);
+    // TODO 可优化，不使用qss
+    // 之所以这样做是因为设置了qss会影响进度条的样式
+    for (auto child : findChildren<RoundItemButton*>()) {
+        updateStyle(":/skin/requireshutdown.qss", child);
+    }
 
     // refresh language
     for (auto it = m_trList.constBegin(); it != m_trList.constEnd(); ++it) {
@@ -381,17 +440,26 @@ void ShutdownWidget::rightKeySwitch()
 
 void ShutdownWidget::onStatusChanged(SessionBaseModel::ModeStatus status)
 {
+    qInfo() << Q_FUNC_INFO << status;
     // 显示方式变化时初始化按钮是否可见和默认选择的按钮，关机界面默认为待机  锁屏界面为关机
     m_status = status;
+    m_chooseUpdate->setVisible(false);
+    m_mainLayout->setCurrentIndex(0);
     RoundItemButton *roundItemButton;
     if (m_status == SessionBaseModel::ModeStatus::ShutDownMode) {
-        m_requireLockButton->setVisible(GSettingWatcher::instance()->getStatus("systemLock") != "Hiden");
-        m_requireSwitchUserBtn->setVisible(m_switchUserEnable);
-        if (m_requireSwitchSystemBtn) {
-            m_requireSwitchSystemBtn->setVisible(true);
+        if (m_model->updatePowerMode()) {
+            m_requireLockButton->setVisible(GSettingWatcher::instance()->getStatus("systemLock") != "Hiden");
+            m_requireSwitchUserBtn->setVisible(m_switchUserEnable);
+            if (m_requireSwitchSystemBtn) {
+                m_requireSwitchSystemBtn->setVisible(true);
+            }
+            m_requireLogoutButton->setVisible(!m_dconfig->value("hideLogoutButton", false).toBool());
+            roundItemButton = m_requireLockButton;
+        } else {
+            roundItemButton = m_model->updatePowerMode() == SessionBaseModel::UPM_UpdateAndShutdown ?
+                m_updateAndShutdownButton : m_updateAndRebootButton;
         }
-        m_requireLogoutButton->setVisible(!m_dconfig->value("hideLogoutButton", false).toBool());
-        roundItemButton = m_requireLockButton;
+
     } else {
         m_requireLockButton->setVisible(false);
         m_requireSwitchUserBtn->setVisible(false);
@@ -421,6 +489,9 @@ void ShutdownWidget::onStatusChanged(SessionBaseModel::ModeStatus status)
     if (m_systemMonitor) {
         m_systemMonitor->setVisible(status == SessionBaseModel::ModeStatus::ShutDownMode);
     }
+
+    //显示红点
+    setUpdateButtonVisible(UpdateModel::instance()->isUpdateAvailable());
 }
 
 void ShutdownWidget::runSystemMonitor()
@@ -459,6 +530,10 @@ void ShutdownWidget::onRequirePowerAction(SessionBaseModel::PowerAction powerAct
     //锁屏或关机模式时，需要确认是否关机或检查是否有阻止关机
     if (m_model->appType() == Lock) {
         switch (powerAction) {
+        //更新前检查是否允许关机
+        case SessionBaseModel::PowerAction::RequireUpdateShutdown:
+        case SessionBaseModel::PowerAction::RequireUpdateRestart:
+
         case SessionBaseModel::PowerAction::RequireShutdown:
         case SessionBaseModel::PowerAction::RequireRestart:
         case SessionBaseModel::PowerAction::RequireSwitchSystem:
@@ -606,4 +681,44 @@ void ShutdownWidget::setModel(SessionBaseModel *const model)
     connect(model, &SessionBaseModel::currentUserChanged, this, &ShutdownWidget::updateLocale);
 
     enableSleepBtn(model->canSleep());
+}
+
+void ShutdownWidget::setUpdateButtonVisible(bool visible)
+{
+    qInfo()<<"update: hasUpdate "<<visible;
+    m_updateAndRebootButton->setVisible(visible);
+    m_updateAndRebootButton->setRedPointVisible(visible);
+    m_updateAndShutdownButton->setVisible(visible);
+    m_updateAndShutdownButton->setRedPointVisible(visible);
+}
+
+void ShutdownWidget::doUpdate(bool isReboot)
+{
+    qInfo() << Q_FUNC_INFO << " reboot: " << isReboot;
+    //开始更新
+    if (m_updateWidget == nullptr){
+        m_updateWidget = new UpdateWidget(this);
+        m_mainLayout->addWidget(m_updateWidget);
+        m_mainLayout->setAlignment(m_updateWidget, Qt::AlignCenter);
+
+        m_updateWidget->setModel(m_model);
+
+        // 设置大小
+        QWidget * pTopParentWidget = this;
+        while (pTopParentWidget->parentWidget()) {
+            pTopParentWidget= pTopParentWidget->parentWidget();
+        }
+        UpdateWidgetTool::updateScale(pTopParentWidget->size());
+
+        m_updateWidget->adjustWidgetSize();
+    }
+
+    UpdateCtrl::instance()->setIsReboot(isReboot);
+    UpdateCtrl::instance()->doLoop();
+    UpdateCtrl::instance()->setIsUpdating(true);
+    m_updateWidget->showUpdate();
+    //切换到更新界面
+    m_mainLayout->setCurrentWidget(m_updateWidget);
+    // UpdateCtrl::instance()->UpgradeSystem();
+    UpdateModel::instance()->setUpdateStatus(UpdateModel::Ready);
 }

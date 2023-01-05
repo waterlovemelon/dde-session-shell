@@ -54,6 +54,7 @@ find_package(Qt5 COMPONENTS
     Xml
     Svg
     Network
+    WebEngineWidgets
 REQUIRED)
 
 pkg_check_modules(XCB_EWMH REQUIRED xcb-ewmh x11 xi xcursor xfixes xrandr xext xtst)
@@ -70,6 +71,7 @@ set(Qt_LIBS
     Qt5::X11Extras
     Qt5::Xml
     Qt5::Svg
+    Qt5::WebEngineWidgets
 )
 
 try_compile(USE_DEEPIN_WAYLAND
@@ -145,6 +147,7 @@ include_directories(${PROJECT_SOURCE_DIR}/src/widgets)
 include_directories(${PROJECT_SOURCE_DIR}/src/session-widgets)
 include_directories(${PROJECT_SOURCE_DIR}/src/libdde-auth)
 include_directories(${PROJECT_SOURCE_DIR}/interface)
+include_directories(${PROJECT_SOURCE_DIR}/src/update)
 
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/global_util GLOBAL_UTILS)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/global_util/dbus GLOBAL_UTILS_DBUS)
@@ -154,6 +157,7 @@ aux_source_directory(${PROJECT_SOURCE_DIR}/src/libdde-auth AUTHENTICATE)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/global_util/keyboardmonitor GLOBAL_UTILS_KEYBOARDMONITOR)
 aux_source_directory(${PROJECT_SOURCE_DIR}/interface INTERFACE)
 aux_source_directory(${PROJECT_SOURCE_DIR}/src/global_util/plugin_manager PLUGIN_MANAGER)
+aux_source_directory(${PROJECT_SOURCE_DIR}/src/update UPDATE)
 
 set(QRCS
     ${CMAKE_CURRENT_SOURCE_DIR}/resources.qrc
@@ -173,6 +177,7 @@ set(LOCK_SRCS
     ${AUTHENTICATE}
     ${INTERFACE}
     ${PLUGIN_MANAGER}
+    ${UPDATE}
     src/app/dde-lock.cpp
     src/dde-lock/lockframe.cpp
     src/dde-lock/lockworker.cpp
@@ -211,6 +216,7 @@ target_link_libraries(dde-lock PRIVATE
     ${DtkWidget_LIBRARIES}
     ${DtkCore_LIBRARIES}
     ${Qt5Widgets_LIBRARIES}
+    ${Qt5WebEngineWidgets_LIBRARIES}
     ${Qt5Concurrent_LIBRARIES}
     ${Qt5X11Extras_LIBRARIES}
     ${Qt5DBus_LIBRARIES}
@@ -232,6 +238,7 @@ set(GREETER_SRCS
     ${AUTHENTICATE}
     ${INTERFACE}
     ${PLUGIN_MANAGER}
+    ${UPDATE}
     src/app/lightdm-deepin-greeter.cpp
     src/lightdm-deepin-greeter/loginwindow.cpp
     src/lightdm-deepin-greeter/greeterworker.cpp

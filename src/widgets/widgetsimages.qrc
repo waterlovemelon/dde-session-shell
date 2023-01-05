@@ -184,5 +184,42 @@
         <file>img/list_actions/userswitch_press.svg</file>
         <file>img/deepin-system-monitor.svg</file>
         <file>img/user_name.svg</file>
+        <file>img/update/arrow_r.png</file>
+        <file>img/update/load-gif/24/24_00018.png</file>
+        <file>img/update/load-gif/24/24_00019.png</file>
+        <file>img/update/load-gif/24/24_00020.png</file>
+        <file>img/update/load-gif/24/24_00021.png</file>
+        <file>img/update/load-gif/24/24_00022.png</file>
+        <file>img/update/load-gif/24/24_00023.png</file>
+        <file>img/update/load-gif/24/24_00024.png</file>
+        <file>img/update/load-gif/24/24_00025.png</file>
+        <file>img/update/load-gif/24/24_00026.png</file>
+        <file>img/update/load-gif/24/24_00027.png</file>
+        <file>img/update/load-gif/24/24_00028.png</file>
+        <file>img/update/load-gif/24/24_00029.png</file>
+        <file>img/update/load-gif/24/24_00030.png</file>
+        <file>img/update/load-gif/24/24_00031.png</file>
+        <file>img/update/load-gif/24/24_00032.png</file>
+        <file>img/update/load-gif/24/24_00033.png</file>
+        <file>img/update/load-gif/24/24_00034.png</file>
+        <file>img/update/load-gif/24/24_00035.png</file>
+        <file>img/update/load-gif/48/48_00018.png</file>
+        <file>img/update/load-gif/48/48_00019.png</file>
+        <file>img/update/load-gif/48/48_00020.png</file>
+        <file>img/update/load-gif/48/48_00021.png</file>
+        <file>img/update/load-gif/48/48_00022.png</file>
+        <file>img/update/load-gif/48/48_00023.png</file>
+        <file>img/update/load-gif/48/48_00024.png</file>
+        <file>img/update/load-gif/48/48_00025.png</file>
+        <file>img/update/load-gif/48/48_00026.png</file>
+        <file>img/update/load-gif/48/48_00027.png</file>
+        <file>img/update/load-gif/48/48_00028.png</file>
+        <file>img/update/load-gif/48/48_00029.png</file>
+        <file>img/update/load-gif/48/48_00030.png</file>
+        <file>img/update/load-gif/48/48_00031.png</file>
+        <file>img/update/load-gif/48/48_00032.png</file>
+        <file>img/update/load-gif/48/48_00033.png</file>
+        <file>img/update/load-gif/48/48_00034.png</file>
+        <file>img/update/load-gif/48/48_00035.png</file>
     </qresource>
 </RCC>

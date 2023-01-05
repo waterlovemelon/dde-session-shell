@@ -129,7 +129,7 @@ void DConfigHelper::setConfig(const QString &key, const QVariant &value)
 
 QVariant DConfigHelper::getConfig(const QString &appId, const QString &name, const QString &subpath, const QString &key, const QVariant &defaultValue)
 {
-    qInfo() << Q_FUNC_INFO
+    qDebug() << Q_FUNC_INFO
             << ", appId: " << appId
             << ", name: " << name
             << ", subpath: " << subpath

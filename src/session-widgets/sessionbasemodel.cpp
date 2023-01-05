@@ -37,6 +37,7 @@ SessionBaseModel::SessionBaseModel(QObject *parent)
     , m_authProperty {false, false, Unavailable, AuthCommon::None, AuthCommon::None, 0, "", "", ""}
     , m_users(new QMap<QString, std::shared_ptr<User>>())
     , m_loginedUsers(new QMap<QString, std::shared_ptr<User>>())
+    , m_updatePowerMode(UPM_None)
 {
 }
 

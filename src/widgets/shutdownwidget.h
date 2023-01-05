@@ -18,6 +18,7 @@
 #include "switchos_interface.h"
 #include "systemmonitor.h"
 #include "public_func.h"
+#include "updatewidget.h"
 
 DCORE_BEGIN_NAMESPACE
 class DConfig;
@@ -58,22 +59,24 @@ private:
     void enterKeyPushed();
     void enableHibernateBtn(bool enable);
     void enableSleepBtn(bool enable);
+    void setUpdateButtonVisible(bool visible);
+    void doUpdate(bool isReboot);
 
 private:
     int m_index;
-    bool m_switchUserEnable= false;
+    bool m_switchUserEnable = false;
     SessionBaseModel::ModeStatus m_status;
     QList<RoundItemButton *> m_btnList;
     QList<std::pair<std::function<void (QString)>, QString>> m_trList;
     SessionBaseModel* m_model;
     FrameDataBind *m_frameDataBind;
-    QFrame* m_shutdownFrame = nullptr;
-    SystemMonitor* m_systemMonitor = nullptr;
-    QFrame* m_actionFrame = nullptr;
+    QFrame* m_shutdownFrame;
+    SystemMonitor* m_systemMonitor;
+    QFrame* m_actionFrame;
     QStackedLayout* m_mainLayout;
     QHBoxLayout* m_shutdownLayout;
     QVBoxLayout* m_actionLayout;
-    RoundItemButton* m_currentSelectedBtn = nullptr;
+    RoundItemButton* m_currentSelectedBtn;
     RoundItemButton* m_requireShutdownButton;
     RoundItemButton* m_requireRestartButton;
     RoundItemButton* m_requireSuspendButton;
@@ -81,9 +84,13 @@ private:
     RoundItemButton* m_requireLockButton;
     RoundItemButton* m_requireLogoutButton;
     RoundItemButton* m_requireSwitchUserBtn;
-    RoundItemButton* m_requireSwitchSystemBtn = nullptr;
-    HuaWeiSwitchOSInterface *m_switchosInterface = nullptr;
+    RoundItemButton* m_requireSwitchSystemBtn;
+    RoundItemButton* m_updateAndShutdownButton;
+    RoundItemButton* m_updateAndRebootButton;
+    HuaWeiSwitchOSInterface *m_switchosInterface;
     DTK_CORE_NAMESPACE::DConfig *m_dconfig;
+    UpdateChooseTip *m_chooseUpdate;
+    UpdateWidget *m_updateWidget;
 };
 
 #endif // SHUTDOWNWIDGET

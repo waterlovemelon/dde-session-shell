@@ -236,6 +236,17 @@ void RoundItemButton::paintEvent(QPaintEvent* event)
 
         painter.drawText(lineRect, Qt::AlignCenter, textList.at(i));
     }
+
+    // 绘制文字旁的小红点
+    if (m_redpointVisible) {
+        QRect textRt(textRect.x(),textRect.y(),textRect.width(),textList.size()*lineHeight);
+        const int spaceToText = 4;     //文字和红点的距离
+        const int radius = 3;          //红点的半径
+        QPoint centerOfCircle=textRt.topRight()+QPoint(spaceToText,textRt.height()/2);
+        painter.setBrush(QBrush(Qt::red));
+        painter.setPen(Qt::red);
+        painter.drawEllipse(centerOfCircle,radius,radius);
+    }
 }
 
 void RoundItemButton::updateIcon()
@@ -283,4 +294,11 @@ void RoundItemButton::setPressPic(const QString &path)
     m_pressedIcon = path;
 
     updateIcon();
+}
+
+void RoundItemButton::setRedPointVisible(const bool &visible)
+{
+    m_redpointVisible = visible;
+
+    update();
 }

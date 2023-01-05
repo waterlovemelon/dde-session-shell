@@ -16,7 +16,9 @@ public:
     void setModel(SessionBaseModel *const model);
     void show();
     void Shutdown();
+    void UpdateAndShutdown();
     void Restart();
+    void UpdateAndReboot();
     void Logout();
     void Suspend();
     void Hibernate();

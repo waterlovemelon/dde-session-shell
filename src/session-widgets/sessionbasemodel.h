@@ -30,6 +30,8 @@ public:
     enum PowerAction {
         None,
         RequireNormal,
+        RequireUpdateShutdown,
+        RequireUpdateRestart,
         RequireShutdown,
         RequireRestart,
         RequireSuspend,
@@ -52,6 +54,13 @@ public:
         ResetPasswdMode
     };
     Q_ENUM(ModeStatus)
+
+    enum UpdatePowerMode {
+        UPM_None,
+        UPM_UpdateAndShutdown,
+        UPM_UpdateAndReboot
+    };
+    Q_ENUM(UpdatePowerMode)
 
     /* com.deepin.daemon.Authenticate */
     struct AuthProperty {
@@ -142,6 +151,9 @@ public:
 
     void setCurrentPowerBtnIndex(const int index);
     inline int currentPowerBtnIndex() const { return m_currentPowerBntIndex;}
+
+    void setUpdatePowerMode(UpdatePowerMode mode) { m_updatePowerMode = mode; }
+    UpdatePowerMode updatePowerMode() const { return m_updatePowerMode; }
 
 signals:
     /* com.deepin.daemon.Accounts */
@@ -244,6 +256,7 @@ private:
     AuthProperty m_authProperty; // 认证相关属性的值，初始时通过dbus获取，暂存在model中，供widget初始化界面使用
     QMap<QString, std::shared_ptr<User>> *m_users;
     QMap<QString, std::shared_ptr<User>> *m_loginedUsers;
+    UpdatePowerMode m_updatePowerMode;
 };
 
 #endif // SESSIONBASEMODEL_H

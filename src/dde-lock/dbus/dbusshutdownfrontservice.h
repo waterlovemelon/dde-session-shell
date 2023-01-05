@@ -37,7 +37,9 @@ public:
 public Q_SLOTS:
     void Show();
     void Shutdown();
+    void UpdateAndShutdown();
     void Restart();
+    void UpdateAndReboot();
     void Logout();
     void Suspend();
     void Hibernate();
